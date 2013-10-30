@@ -1,4 +1,6 @@
-aptUpdate
+netUpdate
 =========
 
-A fast way to update your Linux system using just a bash wich execute APT commands
+Here you can find a collection of several shell scripts, used to updating everything.
+
+Feel free to contribute!
