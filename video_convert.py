@@ -7,6 +7,9 @@ import psutil	# sudo pip install psutil OR sudo apt-get install python-psutil
 # http://stackoverflow.com/questions/20027440/psutil-module-not-fully-working-on-debian-7
 
 def listFile(root, ext):
+# It returns all the files found which has the -f value as extension.
+# The returned value is an array.
+
 	ext = "." + ext
 	fileList = []
 	for root, dirs, files in os.walk(root):
@@ -19,28 +22,43 @@ def listFile(root, ext):
 					"fileName" : os.path.splitext(file)[0],
 					"filePath" : os.path.abspath(root)
 				})
+	print fileList
 	return fileList
 
 def routine(fileList):
-	lengthQueue	=	len(fileList)
-	index		=	0
-	endIndex	=	lengthQueue
+# It repeats the actions until all the list items are not done
+
+	index		=	0				# List pointer
+	endIndex	=	len(fileList)	# End of the list
+	
 	while index < endIndex :
+		''' The number of PIDs (items) is the number of process running/active.
+			This number must be less then the number of CPUs
+		'''
 		if len(PIDs) < cpu :
 			run(fileList[index])
 			index += 1
 		checkProcesses()
 		time.sleep(2)
 
+
 def run(var) :
+# Create and run the command in a new shell
+# The process ID (PID) will be added to the PIDs array
+
 	sor	=	var['filePath'] + "/" + var['fileName'] + "." + extFrom
 	out	=	var['filePath'] + "/" + var['fileName'] + "." + extTo
 	cmd	=	'ffmpeg -v quiet -i "' + sor + '" "' + out + '" && rm "' + sor + '" && exit'
-	print cmd
+	if v : print cmd
 	pid	= subprocess.Popen(cmd, shell=True).pid
 	PIDs.append(pid)
 
+
 def checkProcesses() :
+# Check if the processes in PIDs array are active.
+# If the process is a ZOMBIE, kill it and remove it from the PIDs array.
+# If the process is NOT FOUND, remove it from the PIDs array.
+
 	for process in PIDs :
 		theProcess	=	isProcessAlive(process)
 		if v : print("The process " + str(process) + " is : " + theProcess)
@@ -51,8 +69,12 @@ def checkProcesses() :
 		elif theProcess == 'PROCESS NOT FOUND' :
 			if v : print "Process not FOUND. It will be removed from the list"
 			PIDs.remove(process)
+
 		
 def isProcessAlive(pid):
+# Check the status of the process passed
+
+	if v : print 'Is the process ' + str(pid) + ' exist? ' + str(psutil.pid_exists(pid))
 	if psutil.pid_exists(pid) :	# http://stackoverflow.com/questions/568271/how-to-check-if-there-exists-a-process-with-a-given-pid
 		p = psutil.Process(pid)
 		if v : print str(pid) + " : " + p.status()
@@ -61,7 +83,10 @@ def isProcessAlive(pid):
 		return 'PROCESS NOT FOUND'
 	
 
+
 def main():
+# Check value passed and run the routine if everything is OK
+
 	parser = argparse.ArgumentParser(
 		prog='Video Converter',
 		description='It use the ffmpeg program.',
@@ -75,14 +100,14 @@ def main():
 	
 	args = parser.parse_args()
 	
-	''' Instantiate Variables '''
+	''' Instantiate Global Variables '''
 	
 	global v, cpu, folder, extFrom, extTo, PIDs
 	
-	v		=	args.verbose
-	extFrom	=	args.f
-	extTo	=	args.t
-	PIDs	=	[]
+	v		=	args.verbose	# If the execution is verbose or not (bool)
+	extFrom	=	args.f			# Extension to find/source (str)
+	extTo	=	args.t			# Extension to convert/output (str)
+	PIDs	=	[]				# Processes List active (array)
 	
 	if v : print(args)
 	if v : print("CPU(s) avaible : " + str(cpuN))
@@ -102,11 +127,11 @@ def main():
 	else :
 		folder = "."
 		
-	''' Find files '''
-	if v : print 'PID : ' + str(os.getpid())	# ps --ppid PID-NUMBER
 	
+	if v : print 'The script PID is ' + str(os.getpid())	# ps --ppid PID-NUMBER
+	
+	'''	Run the program '''
 	routine( listFile(folder, extFrom) )
-	
 	
 	
 if __name__ == '__main__':
@@ -117,7 +142,7 @@ if __name__ == '__main__':
 	global cpuN
 	cpuN = int(os.sysconf('SC_NPROCESSORS_ONLN'))
 	if cpuN == 0:
-		print('\033[31m\033[1mError : Impossible to read CPU info.\033[0m')
+		print('\033[31m\033[1mError : Impossible reading CPU info.\033[0m')
 		quit()
 	
 	main()
