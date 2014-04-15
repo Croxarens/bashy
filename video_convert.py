@@ -22,7 +22,8 @@ def listFile(root, ext):
 					"fileName" : os.path.splitext(file)[0],
 					"filePath" : os.path.abspath(root)
 				})
-	print fileList
+	if v : print 'There is/are ' + str(len(fileList)) + ' file(s) to process'
+	if v : print fileList
 	return fileList
 
 def routine(fileList):
@@ -31,11 +32,11 @@ def routine(fileList):
 	index		=	0				# List pointer
 	endIndex	=	len(fileList)	# End of the list
 	
-	while index < endIndex :
+	while index <= endIndex :
 		''' The number of PIDs (items) is the number of process running/active.
 			This number must be less then the number of CPUs
 		'''
-		if len(PIDs) < cpu :
+		if len(PIDs) < cpu and index < endIndex :
 			run(fileList[index])
 			index += 1
 		checkProcesses()
@@ -64,9 +65,9 @@ def checkProcesses() :
 		if v : print("The process " + str(process) + " is : " + theProcess)
 		if theProcess == psutil.STATUS_ZOMBIE :
 			if v : print "Zombie found, we are going to kill PID " + str(process)
-			psutil.Process(process).kill()
-			PIDs.remove(process)
-		elif theProcess == 'PROCESS NOT FOUND' :
+			#psutil.Process(process).kill()
+			#PIDs.remove(process)
+		elif theProcess == 'NOT FOUND' :
 			if v : print "Process not FOUND. It will be removed from the list"
 			PIDs.remove(process)
 
@@ -77,10 +78,9 @@ def isProcessAlive(pid):
 	if v : print 'Is the process ' + str(pid) + ' exist? ' + str(psutil.pid_exists(pid))
 	if psutil.pid_exists(pid) :	# http://stackoverflow.com/questions/568271/how-to-check-if-there-exists-a-process-with-a-given-pid
 		p = psutil.Process(pid)
-		if v : print str(pid) + " : " + p.status()
 		return p.status()
 	else :
-		return 'PROCESS NOT FOUND'
+		return 'NOT FOUND'
 	
 
 
@@ -194,3 +194,7 @@ video:6275kB audio:4374kB global headers:4kB muxing overhead 2.846288%
 frame=13513 fps= 16 q=0.0 Lsize=   15140kB time=540.52 bitrate= 229.5kbits/s    
 video:9295kB audio:5460kB global headers:4kB muxing overhead 2.590892%
 '''
+
+# https://wiki.python.org/moin/EscapingHtml
+# http://stackoverflow.com/questions/2969044/python-string-escape-vs-unicode-escape
+#
