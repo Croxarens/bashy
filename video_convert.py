@@ -47,13 +47,22 @@ def run(var) :
 # Create and run the command in a new shell
 # The process ID (PID) will be added to the PIDs array
 
-	sor	=	var['filePath'] + "/" + var['fileName'] + "." + extFrom
-	out	=	var['filePath'] + "/" + var['fileName'] + "." + extTo
-	cmd	=	'ffmpeg -v quiet -i "' + sor + '" "' + out + '" && rm "' + sor + '" && exit'
+	sor	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extFrom)
+	out	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extTo)
+	cmd	=	'ffmpeg -v quiet -i ' + sor + ' ' + out + ' && rm ' + sor + ' && exit'
 	if v : print cmd
 	pid	= subprocess.Popen(cmd, shell=True).pid
 	PIDs.append(pid)
 
+def cliStr(argument):
+# Replace chars for CLI purpose
+    return '"%s"' % (
+        argument
+        .replace('\\', '\\\\')
+        .replace('\'', '\\\'')
+        .replace('$', '\$')
+        .replace('`', '\`')
+    )
 
 def checkProcesses() :
 # Check if the processes in PIDs array are active.
@@ -157,44 +166,3 @@ if __name__ == '__main__':
 	# http://linux.byexamples.com/archives/366/python-how-to-run-a-command-line-within-python/
 	# http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
 	'''
-	
-	'''
-	Check if the number of CPU the user want to use is less then the
-	number of CPU of the system.
-	'''
-
-
-'''
-FIXME:
-ffmpeg -v quiet -i "/home/luigitaccetta/tmp/convert/Business/Building an Integrated Online Marketing Plan/4. The Four Parts of a Successful Online Marketing Strategy Social Sharing/126059_MM30_04_01_FaceBook.mp4" "/home/luigitaccetta/tmp/convert/Business/Building an Integrated Online Marketing Plan/4. The Four Parts of a Successful Online Marketing Strategy Social Sharing/126059_MM30_04_01_FaceBook.webm" && rm "/home/luigitaccetta/tmp/convert/Business/Building an Integrated Online Marketing Plan/4. The Four Parts of a Successful Online Marketing Strategy Social Sharing/126059_MM30_04_01_FaceBook.mp4" && exit
-Traceback (most recent call last):
-  File "names.py", line 115, in <module>
-    main()
-  File "names.py", line 100, in main
-    routine( listFile(folder, extFrom) )
-  File "names.py", line 32, in routine
-    checkProcesses()
-  File "names.py", line 45, in checkProcesses
-    if isProcessAlive(process) == psutil.STATUS_ZOMBIE :
-  File "names.py", line 51, in isProcessAlive
-    p = psutil.Process(pid)
-  File "/usr/local/lib/python2.7/dist-packages/psutil/__init__.py", line 296, in __init__
-    self._init(pid)
-  File "/usr/local/lib/python2.7/dist-packages/psutil/__init__.py", line 331, in _init
-    raise NoSuchProcess(pid, None, msg)
-psutil.NoSuchProcess: no process found with pid 12507
-luigitaccetta@crunchbang:~/tmp/convert$ Stream mapping:
-  Stream #0.0 -> #0.0
-  Stream #0.1 -> #0.1
-Press ctrl-c to stop encoding
-frame= 9814 fps= 11 q=0.0 Lsize=    8902kB time=392.56 bitrate= 185.8kbits/s    
-video:4757kB audio:3872kB global headers:4kB muxing overhead 3.121127%
-frame=11170 fps= 10 q=0.0 Lsize=   10956kB time=446.80 bitrate= 200.9kbits/s    
-video:6275kB audio:4374kB global headers:4kB muxing overhead 2.846288%
-frame=13513 fps= 16 q=0.0 Lsize=   15140kB time=540.52 bitrate= 229.5kbits/s    
-video:9295kB audio:5460kB global headers:4kB muxing overhead 2.590892%
-'''
-
-# https://wiki.python.org/moin/EscapingHtml
-# http://stackoverflow.com/questions/2969044/python-string-escape-vs-unicode-escape
-#
