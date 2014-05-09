@@ -32,7 +32,7 @@ def routine(fileList):
 	index		=	0				# List pointer
 	endIndex	=	len(fileList)	# End of the list
 	
-	while index <= endIndex :
+	while index < endIndex :
 		''' The number of PIDs (items) is the number of process running/active.
 			This number must be less then the number of CPUs
 		'''
