@@ -40,7 +40,9 @@ def routine(fileList):
 			run(fileList[index])
 			index += 1
 		checkProcesses()
-		time.sleep(2)
+		time.sleep(10)
+	
+	print("\n\nEND of Routine\n")
 
 
 def run(var) :
@@ -49,7 +51,7 @@ def run(var) :
 
 	sor	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extFrom)
 	out	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extTo)
-	cmd	=	'ffmpeg -v quiet -i ' + sor + ' ' + out + ' && rm ' + sor + ' && exit'
+	cmd	=	'ffmpeg -v quiet -y -i ' + sor + ' ' + out + ' && rm ' + sor + ' && exit'
 	if v : print cmd
 	pid	= subprocess.Popen(cmd, shell=True).pid
 	PIDs.append(pid)
@@ -74,8 +76,8 @@ def checkProcesses() :
 		if v : print("The process " + str(process) + " is : " + theProcess)
 		if theProcess == psutil.STATUS_ZOMBIE :
 			if v : print "Zombie found, we are going to kill PID " + str(process)
-			#psutil.Process(process).kill()
-			#PIDs.remove(process)
+			psutil.Process(process).kill()
+			PIDs.remove(process)
 		elif theProcess == 'NOT FOUND' :
 			if v : print "Process not FOUND. It will be removed from the list"
 			PIDs.remove(process)
