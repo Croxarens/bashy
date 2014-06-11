@@ -51,9 +51,9 @@ def run(var) :
 
 	sor	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extFrom)
 	out	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extTo)
-	cmd	=	'ffmpeg -v quiet -y -i ' + sor + ' ' + out + ' && rm ' + sor + ' && exit'
+	cmd	=	'ffmpeg -v quiet -y -i ' + sor + ' ' + out + ' && rm ' + sor
 	if v : print cmd
-	pid	= subprocess.Popen(cmd, shell=True).pid
+	pid	= subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
 	PIDs.append(pid)
 
 def cliStr(argument):
@@ -72,11 +72,13 @@ def checkProcesses() :
 # If the process is NOT FOUND, remove it from the PIDs array.
 
 	for process in PIDs :
-		theProcess	=	isProcessAlive(process)
-		if v : print("The process " + str(process) + " is : " + theProcess)
+		theProcess	=	isProcessAlive(process.pid)
+		if v : print("The process " + str(process.pid) + " is : " + theProcess)
 		if theProcess == psutil.STATUS_ZOMBIE :
 			if v : print "Zombie found, we are going to kill PID " + str(process)
-			psutil.Process(process).kill()
+			#psutil.Process(process).kill()
+			process.poll()
+			# TODO : Check if the process exist, if not, remove it from PIDs
 			PIDs.remove(process)
 		elif theProcess == 'NOT FOUND' :
 			if v : print "Process not FOUND. It will be removed from the list"
