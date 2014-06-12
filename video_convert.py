@@ -36,11 +36,19 @@ def routine(fileList):
 		''' The number of PIDs (items) is the number of process running/active.
 			This number must be less then the number of CPUs
 		'''
+		os.system('clear') # Clean the output terminal
+		
+		if v :
+			print "PIDs array is : " + str(len(PIDs))
+			print PIDs
+			print "Index is : " + str(index)
+		
+		
 		if len(PIDs) < cpu and index < endIndex :
 			run(fileList[index])
 			index += 1
 		checkProcesses()
-		time.sleep(10)
+		time.sleep(20)
 	
 	print("\n\nEND of Routine\n")
 
@@ -52,7 +60,7 @@ def run(var) :
 	sor	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extFrom)
 	out	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extTo)
 	cmd	=	'ffmpeg -v quiet -y -i ' + sor + ' ' + out + ' && rm ' + sor
-	if v : print cmd
+	if v : print "Command : " + cmd
 	pid	= subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
 	PIDs.append(pid)
 
@@ -73,16 +81,15 @@ def checkProcesses() :
 
 	for process in PIDs :
 		theProcess	=	isProcessAlive(process.pid)
-		if v : print("The process " + str(process.pid) + " is : " + theProcess)
+		#if v : print("The process " + str(process.pid) + " is : " + theProcess)
 		if theProcess == psutil.STATUS_ZOMBIE :
-			if v : print "Zombie found, we are going to kill PID " + str(process)
-			#psutil.Process(process).kill()
-			process.poll()
-			# TODO : Check if the process exist, if not, remove it from PIDs
-			PIDs.remove(process)
+			#if v : print "Zombie found, we are going to kill PID " + str(process)
+			process.poll()	# Check if child process has terminated | https://docs.python.org/2/library/subprocess.html#subprocess.Popen.poll
 		elif theProcess == 'NOT FOUND' :
-			if v : print "Process not FOUND. It will be removed from the list"
+			#if v : print "Process not FOUND. It will be removed from the list"
 			PIDs.remove(process)
+		
+		if v : print("The process " + str(process.pid) + " is : " + theProcess)
 
 		
 def isProcessAlive(pid):
