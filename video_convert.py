@@ -30,9 +30,9 @@ def routine(fileList):
 # It repeats the actions until all the list items are not done
 
 	index		=	0				# List pointer
-	endIndex	=	len(fileList)	# End of the list
+	endIndex	=	len(fileList)-1	# End of the list
 	
-	while index < endIndex :
+	while index <= endIndex :
 		''' The number of PIDs (items) is the number of process running/active.
 			This number must be less then the number of CPUs
 		'''
@@ -41,14 +41,14 @@ def routine(fileList):
 		if v :
 			print "PIDs array is : " + str(len(PIDs))
 			print PIDs
-			print "Index is : " + str(index)
+			print "Index is : " + str(index) + "/" + str(endIndex)
 		
 		
-		if len(PIDs) < cpu and index < endIndex :
+		if len(PIDs) < cpu and index <= endIndex :
 			run(fileList[index])
 			index += 1
 		checkProcesses()
-		time.sleep(20)
+		time.sleep(10)
 	
 	print("\n\nEND of Routine\n")
 
@@ -59,7 +59,7 @@ def run(var) :
 
 	sor	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extFrom)
 	out	=	cliStr(var['filePath'] + "/" + var['fileName'] + "." + extTo)
-	cmd	=	'ffmpeg -v quiet -y -i ' + sor + ' ' + out + ' && rm ' + sor
+	cmd	=	'ffmpeg -y -i ' + sor + ' ' + out + ' && rm ' + sor
 	if v : print "Command : " + cmd
 	pid	= subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
 	PIDs.append(pid)
@@ -80,28 +80,14 @@ def checkProcesses() :
 # If the process is NOT FOUND, remove it from the PIDs array.
 
 	for process in PIDs :
-		theProcess	=	isProcessAlive(process.pid)
-		#if v : print("The process " + str(process.pid) + " is : " + theProcess)
-		if theProcess == psutil.STATUS_ZOMBIE :
-			#if v : print "Zombie found, we are going to kill PID " + str(process)
-			process.poll()	# Check if child process has terminated | https://docs.python.org/2/library/subprocess.html#subprocess.Popen.poll
-		elif theProcess == 'NOT FOUND' :
-			#if v : print "Process not FOUND. It will be removed from the list"
-			PIDs.remove(process)
+		processStatus	=	psutil.pid_exists(process.pid)
 		
-		if v : print("The process " + str(process.pid) + " is : " + theProcess)
-
+		if v : print("Process > " + str(process.pid) + " - subprocess : " + str(process.poll()) + ". Is the process alive? " + str(processStatus))
 		
-def isProcessAlive(pid):
-# Check the status of the process passed
-
-	if v : print 'Is the process ' + str(pid) + ' exist? ' + str(psutil.pid_exists(pid))
-	if psutil.pid_exists(pid) :	# http://stackoverflow.com/questions/568271/how-to-check-if-there-exists-a-process-with-a-given-pid
-		p = psutil.Process(pid)
-		return p.status()
-	else :
-		return 'NOT FOUND'
-	
+		if processStatus :
+			process.poll()
+		else :
+			PIDs.remove(process)	
 
 
 def main():
@@ -152,6 +138,7 @@ def main():
 	
 	'''	Run the program '''
 	routine( listFile(folder, extFrom) )
+	#listFile(folder, extFrom)
 	
 	
 if __name__ == '__main__':
